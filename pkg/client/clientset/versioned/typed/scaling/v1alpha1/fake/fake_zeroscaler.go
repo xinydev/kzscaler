@@ -36,9 +36,9 @@ type FakeZeroScalers struct {
 	ns   string
 }
 
-var zeroscalersResource = schema.GroupVersionResource{Group: "scaling", Version: "v1alpha1", Resource: "zeroscalers"}
+var zeroscalersResource = schema.GroupVersionResource{Group: "scaling.xiny.dev", Version: "v1alpha1", Resource: "zeroscalers"}
 
-var zeroscalersKind = schema.GroupVersionKind{Group: "scaling", Version: "v1alpha1", Kind: "ZeroScaler"}
+var zeroscalersKind = schema.GroupVersionKind{Group: "scaling.xiny.dev", Version: "v1alpha1", Kind: "ZeroScaler"}
 
 // Get takes name of the zeroScaler, and returns the corresponding zeroScaler object, and an error if there is any.
 func (c *FakeZeroScalers) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.ZeroScaler, err error) {
@@ -117,7 +117,7 @@ func (c *FakeZeroScalers) UpdateStatus(ctx context.Context, zeroScaler *v1alpha1
 // Delete takes name of the zeroScaler and deletes it. Returns an error if one occurs.
 func (c *FakeZeroScalers) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(zeroscalersResource, c.ns, name, opts), &v1alpha1.ZeroScaler{})
+		Invokes(testing.NewDeleteAction(zeroscalersResource, c.ns, name), &v1alpha1.ZeroScaler{})
 
 	return err
 }

@@ -114,7 +114,7 @@ func (w *wrapScalingV1alpha1) RESTClient() rest.Interface {
 func (w *wrapScalingV1alpha1) ZeroScalers(namespace string) typedscalingv1alpha1.ZeroScalerInterface {
 	return &wrapScalingV1alpha1ZeroScalerImpl{
 		dyn: w.dyn.Resource(schema.GroupVersionResource{
-			Group:    "scaling",
+			Group:    "scaling.xiny.dev",
 			Version:  "v1alpha1",
 			Resource: "zeroscalers",
 		}),
@@ -133,7 +133,7 @@ var _ typedscalingv1alpha1.ZeroScalerInterface = (*wrapScalingV1alpha1ZeroScaler
 
 func (w *wrapScalingV1alpha1ZeroScalerImpl) Create(ctx context.Context, in *v1alpha1.ZeroScaler, opts v1.CreateOptions) (*v1alpha1.ZeroScaler, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   "scaling",
+		Group:   "scaling.xiny.dev",
 		Version: "v1alpha1",
 		Kind:    "ZeroScaler",
 	})
@@ -198,7 +198,7 @@ func (w *wrapScalingV1alpha1ZeroScalerImpl) Patch(ctx context.Context, name stri
 
 func (w *wrapScalingV1alpha1ZeroScalerImpl) Update(ctx context.Context, in *v1alpha1.ZeroScaler, opts v1.UpdateOptions) (*v1alpha1.ZeroScaler, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   "scaling",
+		Group:   "scaling.xiny.dev",
 		Version: "v1alpha1",
 		Kind:    "ZeroScaler",
 	})
@@ -219,7 +219,7 @@ func (w *wrapScalingV1alpha1ZeroScalerImpl) Update(ctx context.Context, in *v1al
 
 func (w *wrapScalingV1alpha1ZeroScalerImpl) UpdateStatus(ctx context.Context, in *v1alpha1.ZeroScaler, opts v1.UpdateOptions) (*v1alpha1.ZeroScaler, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   "scaling",
+		Group:   "scaling.xiny.dev",
 		Version: "v1alpha1",
 		Kind:    "ZeroScaler",
 	})

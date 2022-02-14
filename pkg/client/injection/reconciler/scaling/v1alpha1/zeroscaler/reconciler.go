@@ -103,9 +103,6 @@ type reconcilerImpl struct {
 	// skipStatusUpdates configures whether or not this reconciler automatically updates
 	// the status of the reconciled resource.
 	skipStatusUpdates bool
-
-	// classValue is the resource annotation[autoscaling.knative.dev/class] instance value this reconciler instance filters on.
-	classValue string
 }
 
 // Check that our Reconciler implements controller.Reconciler.
@@ -114,7 +111,7 @@ var _ controller.Reconciler = (*reconcilerImpl)(nil)
 // Check that our generated Reconciler is always LeaderAware.
 var _ reconciler.LeaderAware = (*reconcilerImpl)(nil)
 
-func NewReconciler(ctx context.Context, logger *zap.SugaredLogger, client versioned.Interface, lister scalingv1alpha1.ZeroScalerLister, recorder record.EventRecorder, r Interface, classValue string, options ...controller.Options) controller.Reconciler {
+func NewReconciler(ctx context.Context, logger *zap.SugaredLogger, client versioned.Interface, lister scalingv1alpha1.ZeroScalerLister, recorder record.EventRecorder, r Interface, options ...controller.Options) controller.Reconciler {
 	// Check the options function input. It should be 0 or 1.
 	if len(options) > 1 {
 		logger.Fatal("Up to one options struct is supported, found: ", len(options))
@@ -148,7 +145,6 @@ func NewReconciler(ctx context.Context, logger *zap.SugaredLogger, client versio
 		Recorder:      recorder,
 		reconciler:    r,
 		finalizerName: defaultFinalizerName,
-		classValue:    classValue,
 	}
 
 	for _, opts := range options {
@@ -216,13 +212,6 @@ func (r *reconcilerImpl) Reconcile(ctx context.Context, key string) error {
 		return nil
 	} else if err != nil {
 		return err
-	}
-
-	if classValue, found := original.GetAnnotations()[ClassAnnotationKey]; !found || classValue != r.classValue {
-		logger.Debugw("Skip reconciling resource, class annotation value does not match reconciler instance value.",
-			zap.String("classKey", ClassAnnotationKey),
-			zap.String("issue", classValue+"!="+r.classValue))
-		return nil
 	}
 
 	// Don't modify the informers copy.
