@@ -1,57 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: xkcd
-  namespace: xkcd
+  name: demo-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/instance: xkcd
-      app.kubernetes.io/name: xkcd
+      name: demo-server
   template:
     metadata:
       labels:
-        app.kubernetes.io/instance: xkcd
-        app.kubernetes.io/name: xkcd
+        name: demo-server
     spec:
       containers:
         - image: arschles/xkcd:latest
-          imagePullPolicy: Always
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /
-              port: http
-              scheme: HTTP
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 1
           name: xkcd
           ports:
             - containerPort: 8080
               name: http
               protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /
-              port: http
-              scheme: HTTP
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 1
-          resources: { }
-          securityContext: { }
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-      dnsPolicy: ClusterFirst
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: xkcd
-  namespace: xkcd
+  name: demo-service
 spec:
   ports:
     - name: http
@@ -59,10 +31,10 @@ spec:
       protocol: TCP
       targetPort: http
   selector:
-    app.kubernetes.io/instance: xkcd
-    app.kubernetes.io/name: xkcd
+    name: demo-server
   type: ClusterIP
 status:
   loadBalancer: { }
 
 ---
+# kubectl label namespace default istio-injection=enabled
