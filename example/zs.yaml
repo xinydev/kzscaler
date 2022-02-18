@@ -1,0 +1,7 @@
+apiVersion: zeroscaler.scaling.xiny.dev/v1alpha1
+kind: ZerroScaler
+metadata:
+  name: zs
+spec:
+
+

@@ -16,6 +16,8 @@ require (
 require (
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/stretchr/testify v1.7.0
+	github.com/tetratelabs/proxy-wasm-go-sdk v0.16.0
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect

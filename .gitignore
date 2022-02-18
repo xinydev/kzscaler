@@ -25,3 +25,5 @@ bazel-*
 
 # Operating system temporary files
 .DS_Store
+
+*.wasm
