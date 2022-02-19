@@ -1,0 +1,4 @@
+# Use :nonroot base image for all containers
+defaultBaseImage: gcr.io/distroless/static:nonroot
+
+# kubectl create secret generic tengxunyun-hub --from-file=.dockerconfigjson=/Users/xinyang/.docker/a.json --type=kubernetes.io/dockerconfigjson -n kzscaler

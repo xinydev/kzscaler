@@ -2,11 +2,11 @@ package zeroscaler
 
 import (
 	"context"
-	"k8s.io/client-go/dynamic"
-	pkgreconciler "knative.dev/pkg/reconciler"
 
 	v1alpha1 "github.com/kzscaler/kzscaler/pkg/apis/scaling/v1alpha1"
 	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
+	"k8s.io/client-go/dynamic"
+	pkgreconciler "knative.dev/pkg/reconciler"
 )
 
 type Reconciler struct {

@@ -1,0 +1,112 @@
+# Copyright 2018 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kzscaler-controller
+  namespace: kzscaler
+  labels:
+    scaling.xiny.dev/release: devel
+    knative.dev/high-availability: "true"
+    app.kubernetes.io/component: kzscaler-controller
+    app.kubernetes.io/version: devel
+    app.kubernetes.io/name: kzscaler
+spec:
+  selector:
+    matchLabels:
+      app: kzscaler-controller
+  template:
+    metadata:
+      labels:
+        app: kzscaler-controller
+        scaling.xiny.dev/release: devel
+        app.kubernetes.io/component: kzscaler-controller
+        app.kubernetes.io/version: devel
+        app.kubernetes.io/name: kzscaler
+    spec:
+      # To avoid node becoming SPOF, spread our replicas to different nodes.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: kzscaler-controller
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+      imagePullSecrets:
+        - name: "tengxunyun-hub"
+      serviceAccountName: kzscaler-controller
+      enableServiceLinks: false
+      containers:
+        - name: eventing-controller
+          terminationMessagePolicy: FallbackToLogsOnError
+          image: ko://github.com/kzscaler/kzscaler/cmd/controller
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            - name: SYSTEM_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CONFIG_LOGGING_NAME
+              value: config-logging
+            - name: CONFIG_OBSERVABILITY_NAME
+              value: config-observability
+            - name: METRICS_DOMAIN
+              value: knative.dev/eventing
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - all
+          ports:
+            - name: metrics
+              containerPort: 9090
+            - name: profiling
+              containerPort: 8008
+            - name: http
+              containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kzscaler
+  namespace: kzscaler
+  labels:
+    scaling.xiny.dev/release: devel
+    knative.dev/high-availability: "true"
+    app.kubernetes.io/component: kzscaler-controller
+    app.kubernetes.io/version: devel
+    app.kubernetes.io/name: kzscaler
+spec:
+  selector:
+    app: kzscaler-controller
+    app.kubernetes.io/name: kzscaler
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080

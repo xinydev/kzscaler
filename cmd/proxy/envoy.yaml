@@ -35,8 +35,7 @@ static_resources:
                           vm_config:
                             runtime: "envoy.wasm.runtime.v8"
                             code:
-                              local:
-                                filename: "./proxy.wasm"
+                              image: ssss
                   - name: envoy.filters.http.router
 
 admin:

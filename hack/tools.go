@@ -25,8 +25,6 @@ import (
 	_ "knative.dev/pkg/configmap/hash-gen"
 
 	// codegen: hack/generate-knative.sh
-	_ "knative.dev/pkg/hack"
-
 	_ "k8s.io/code-generator/cmd/client-gen"
 	_ "k8s.io/code-generator/cmd/deepcopy-gen"
 	_ "k8s.io/code-generator/cmd/defaulter-gen"
@@ -34,4 +32,5 @@ import (
 	_ "k8s.io/code-generator/cmd/lister-gen"
 	_ "k8s.io/kube-openapi/cmd/openapi-gen"
 	_ "knative.dev/pkg/codegen/cmd/injection-gen"
+	_ "knative.dev/pkg/hack"
 )
