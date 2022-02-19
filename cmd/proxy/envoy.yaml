@@ -38,6 +38,17 @@ static_resources:
                               local:
                                 filename: "./cmd/proxy/main.go.wasm"
                   - name: envoy.filters.http.router
+  clusters:
+    - name: mock_service
+      load_assignment:
+        cluster_name: mock_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: 127.0.0.1
+                      port_value: 10021
 
 admin:
   access_log_path: "/dev/null"
@@ -45,3 +56,4 @@ admin:
     socket_address:
       address: 0.0.0.0
       port_value: 8001
+

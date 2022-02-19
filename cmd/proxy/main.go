@@ -34,7 +34,7 @@ type vmContext struct {
 // Override types.DefaultVMContext.
 func (*vmContext) NewPluginContext(contextID uint32) types.PluginContext {
 	return &pluginContext{
-		tickMilliseconds: 5 * 1000,
+		tickMilliseconds: 10 * 1000,
 		sched:            NewScheduler(),
 	}
 }
@@ -105,7 +105,8 @@ func NewScheduler() *Scheduler {
 	return &Scheduler{
 		enabledServices:   map[string]bool{},
 		zeroStateServices: map[string]bool{},
-		cluster:           "outbound|80||kzscaler.kzscaler.svc.cluster.local",
+		//cluster:           "outbound|80||kzscaler.kzscaler.svc.cluster.local",
+		cluster: "mock_service",
 	}
 }
 
@@ -129,9 +130,6 @@ func (s *Scheduler) SyncService() error {
 		proxywasm.LogWarnf("get zero state service error,%s", err)
 	}
 
-	loga, logb := s.printService()
-	proxywasm.LogWarnf("sync result,%s;%s", loga, logb)
-
 	return nil
 }
 
@@ -147,7 +145,7 @@ func (s *Scheduler) syncRequest(path string, f func(string)) error {
 		headers,
 		nil,
 		nil,
-		1000,
+		3000,
 		func(numHeaders, bodySize, numTrailers int) {
 			resp, _ := proxywasm.GetHttpCallResponseBody(0, 10000)
 			f(string(resp))

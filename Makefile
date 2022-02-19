@@ -3,11 +3,12 @@ golangci_lint := github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.0
 
 .PHONY: build.wasm
 build.wasm:
-	echo ./cmd/proxy/main.go | xargs -Ip tinygo build -o p.wasm -scheduler=none -target=wasi p
-	#echo ./cmd/proxy/main.go | xargs -Ip tinygo build -o p.wasm -target=wasi p
+	#echo ./cmd/proxy/main.go | xargs -Ip tinygo build -o p.wasm -scheduler=none -target=wasi p
+	echo ./cmd/proxy/main.go | xargs -Ip tinygo build -o p.wasm -target=wasi p
 
 .PHONY: run
 run:
+	echo ./cmd/proxy/main.go | xargs -Ip tinygo build -o p.wasm -target=wasi p
 	envoy -c ./cmd/proxy/envoy.yaml --concurrency 2 --log-format '%v'
 
 .PHONY: lint

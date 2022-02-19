@@ -12,3 +12,8 @@ https://tinygo.org
 
 https://github.com/tetratelabs/proxy-wasm-go-sdk
 
+## Debug
+
+python tests/mock-controller/main.py
+
+make run

@@ -21,7 +21,9 @@ type SimpleSchedulerArgs struct {
 }
 
 func NewScheduler() Scheduler {
-	return &SimpleScheduler{}
+	return &SimpleScheduler{
+		enabledService: map[string]int{},
+	}
 }
 
 // Start
