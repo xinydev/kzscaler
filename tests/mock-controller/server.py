@@ -1,21 +1,29 @@
-from flask import Flask, request
+import time
+
+from flask import Flask
 
 app = Flask(__name__)
 
-enabled_service = ["service1", "service2"]
-zerostate_service = ["service1"]
+service_cache = {
+    "service1": 0,
+    "service2": 1
+}
 
 
-@app.route("/enabled")
-def get_enabled_service():
-    print(request.headers)
-    return "|".join(enabled_service)
+@app.route("/service", methods=['GET'])
+def get_all_service():
+    # service1%10&service2%10
+    service_list = []
+    for k in service_cache:
+        service_list.append(f"{k}%{service_cache[k]}")
+    return "&".join(service_list)
 
 
-@app.route("/zerostate")
-def get_zerostate_service():
-    print(request.headers)
-    return "|".join(zerostate_service)
+@app.route("/scale_up/<service_name>", methods=['GET'])
+def scale_up(service_name):
+    time.sleep(2)
+    print("scale up request:", service_name)
+    return "OK"
 
 
 if __name__ == "__main__":

@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"github.com/tetratelabs/proxy-wasm-go-sdk/proxywasm"
 	"github.com/tetratelabs/proxy-wasm-go-sdk/proxywasm/types"
+	"strconv"
 	"strings"
 )
 
@@ -34,7 +35,7 @@ type vmContext struct {
 // Override types.DefaultVMContext.
 func (*vmContext) NewPluginContext(contextID uint32) types.PluginContext {
 	return &pluginContext{
-		tickMilliseconds: 10 * 1000,
+		tickMilliseconds: 3 * 1000,
 		sched:            NewScheduler(),
 	}
 }
@@ -64,7 +65,6 @@ func (ctx *pluginContext) OnPluginStart(pluginConfigurationSize int) types.OnPlu
 	return types.OnPluginStartStatusOK
 }
 func (ctx *pluginContext) OnTick() {
-	proxywasm.LogWarnf("sync services")
 	if err := ctx.sched.SyncService(); err != nil {
 		proxywasm.LogWarnf("sync failed,%s", err)
 	}
@@ -84,87 +84,84 @@ func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) t
 	if err != nil {
 		proxywasm.LogCritical("failed to set request header: test")
 	}
-	hs, err := proxywasm.GetHttpRequestHeaders()
-	if err != nil {
-		proxywasm.LogCriticalf("failed to get request headers: %v", err)
-	}
-	for _, h := range hs {
-		proxywasm.LogWarnf("request header --> %s: %s", h[0], h[1])
-	}
+	authority, _ := proxywasm.GetHttpRequestHeader(":authority")
+	proxywasm.LogWarnf("request auth:%s", authority)
 
-	return types.ActionContinue
+	act, err := ctx.sched.RequestService(authority, ctx.contextID)
+
+	return act
 }
 
 type Scheduler struct {
-	enabledServices   map[string]bool // service which enabled scale to zero
-	zeroStateServices map[string]bool // service which is zero now
-	cluster           string
+	cluster  string
+	services map[string]int
 }
 
 func NewScheduler() *Scheduler {
 	return &Scheduler{
-		enabledServices:   map[string]bool{},
-		zeroStateServices: map[string]bool{},
+		services: map[string]int{},
 		//cluster:           "outbound|80||kzscaler.kzscaler.svc.cluster.local",
 		cluster: "mock_service",
 	}
 }
 
 func (s *Scheduler) SyncService() error {
-	extract := func(m map[string]bool) func(string) {
-		return func(s string) {
-			for _, service := range strings.Split(s, "|") {
-				m[service] = true
+	return makeRequest(
+		s.cluster,
+		"service",
+		"kzscaler.kzscaler",
+		func(bytes []byte) {
+			// envoy wasm does not support json
+			// services:  service1%10&service2%10
+			for _, svc := range strings.Split(string(bytes), "&") {
+				svcParts := strings.Split(svc, "%")
+				cnt, _ := strconv.Atoi(svcParts[1])
+				s.services[svcParts[0]] = cnt
 			}
+		})
+}
+
+func (s *Scheduler) RequestService(name string, cid uint32) (types.Action, error) {
+	if v, ok := s.services[name]; ok {
+		if v == 0 {
+			// need to call scale up first
+			err := makeRequest(
+				s.cluster,
+				fmt.Sprintf("scale_up/%s", name),
+				"kzscaler.kzscaler",
+				func(bytes []byte) {
+					if err := proxywasm.SetEffectiveContext(cid); err != nil {
+						proxywasm.LogCriticalf("kzscaler callback set error:%s", err)
+
+					}
+					if err := proxywasm.ResumeHttpRequest(); err != nil {
+						proxywasm.LogCriticalf("kzscaler callback resume error:%s", err)
+					}
+				})
+			return types.ActionPause, err
 		}
 	}
 
-	// 1. sync enabled service
-	err := s.syncRequest("enabled", extract(s.enabledServices))
-	if err != nil {
-		proxywasm.LogWarnf("get enabled service error,%s", err)
-	}
-	// 1. sync zero state service
-	err = s.syncRequest("zerostate", extract(s.zeroStateServices))
-	if err != nil {
-		proxywasm.LogWarnf("get zero state service error,%s", err)
-	}
-
-	return nil
+	return types.ActionContinue, nil
 }
 
-func (s *Scheduler) syncRequest(path string, f func(string)) error {
+func makeRequest(cluster, path, authority string, f func([]byte)) error {
 	headers := [][2]string{
 		{":method", "GET"},
-		{":path", fmt.Sprintf("/%s", path)},
-		{":authority", "kzscaler.kzscaler"},
+		{":path", path},
+		{":authority", authority},
 		{":scheme", "http"},
 	}
 
-	_, err := proxywasm.DispatchHttpCall(s.cluster,
+	_, err := proxywasm.DispatchHttpCall(cluster,
 		headers,
 		nil,
 		nil,
 		3000,
 		func(numHeaders, bodySize, numTrailers int) {
 			resp, _ := proxywasm.GetHttpCallResponseBody(0, 10000)
-			f(string(resp))
-			proxywasm.LogWarnf("response:%s", resp)
+			f(resp)
 		},
 	)
 	return err
-}
-
-func (s *Scheduler) printService() (string, string) {
-	enabled := make([]string, 0)
-	zero := make([]string, 0)
-	for k, _ := range s.enabledServices {
-		enabled = append(enabled, k)
-	}
-	for k, _ := range s.zeroStateServices {
-		zero = append(zero, k)
-	}
-
-	return strings.Join(enabled, ","), strings.Join(zero, ",")
-
 }
