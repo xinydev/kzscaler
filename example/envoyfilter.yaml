@@ -44,5 +44,6 @@ spec:
                 vm_config:
                   code:
                     remote:
-                      image: hkccr.ccs.tencentyun.com/xinydev/controller-dbe383ddeb58f749cd57c0d74ac3f2d6@sha256
+                      http_uri:
+                        uri: https://pubic-1259210478.cos.ap-nanjing.myqcloud.com/proxy-1645251297.wasm
                   runtime: envoy.wasm.runtime.v8
