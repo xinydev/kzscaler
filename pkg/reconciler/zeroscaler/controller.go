@@ -32,5 +32,10 @@ func NewController(
 			logging.FromContext(ctx).Errorw("Failed starting simple scheduler.", zap.Error(err))
 		}
 	}()
+
+	s.AddService("service1", 0)
+	s.AddService("service2", 1)
+	s.AddService("service3", 2)
+	s.AddService("service4", 4)
 	return impl
 }
