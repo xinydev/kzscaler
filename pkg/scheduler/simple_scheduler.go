@@ -32,7 +32,7 @@ func logHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("new Request starts")
 	for name, headers := range req.Header {
 		for _, h := range headers {
-			fmt.Println(w, "%v: %v\n", name, h)
+			fmt.Println(w, "%v: %s\n", name, h)
 		}
 	}
 	fmt.Println("new Request ends")

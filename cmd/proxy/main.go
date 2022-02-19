@@ -71,21 +71,15 @@ func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) t
 		proxywasm.LogWarnf("request header --> %s: %s", h[0], h[1])
 	}
 	proxywasm.LogWarnf("http call 1")
-	err = ctx.httpCall1()
+	err = ctx.httpCall()
 	if err != nil {
 		proxywasm.LogWarnf("request1 error,%s", err)
-	}
-
-	proxywasm.LogWarnf("http call 2")
-	err = ctx.httpCall2()
-	if err != nil {
-		proxywasm.LogWarnf("request2 error,%s", err)
 	}
 
 	return types.ActionContinue
 }
 
-func (ctx *httpHeaders) httpCall1() error {
+func (ctx *httpHeaders) httpCall() error {
 	headers := [][2]string{
 		{":method", "GET"},
 		{":path", "/"},
@@ -107,35 +101,12 @@ func (ctx *httpHeaders) httpCall1() error {
 	return err
 }
 
-func (ctx *httpHeaders) httpCall2() error {
-	headers := [][2]string{
-		{":method", "GET"},
-		{":path", "/"},
-		{":authority", "kzscaler.kzscaler"},
-		{":scheme", "http"},
-	}
-
-	_, err := proxywasm.DispatchHttpCall("istio-ingressgateway.istio-system",
-		headers,
-		nil,
-		nil,
-		1000,
-		func(numHeaders, bodySize, numTrailers int) {
-			resp, _ := proxywasm.GetHttpCallResponseBody(0, 10000)
-			r := string(resp)
-			proxywasm.LogDebugf("APISERVER RESPONSE %v", r)
-		},
-	)
-	return err
-}
-
 // Override types.DefaultHttpContext.
 func (ctx *httpHeaders) OnHttpResponseHeaders(numHeaders int, endOfStream bool) types.Action {
 	hs, err := proxywasm.GetHttpResponseHeaders()
 	if err != nil {
 		proxywasm.LogCriticalf("failed to get response headers: %v", err)
 	}
-	_ = proxywasm.AddHttpResponseHeader("fffff", "sdsdsddsdssd")
 	for _, h := range hs {
 		proxywasm.LogWarnf("response header <-- %s: %s", h[0], h[1])
 	}
