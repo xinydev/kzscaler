@@ -45,5 +45,5 @@ spec:
                   code:
                     remote:
                       http_uri:
-                        uri: https://pubic-1259210478.cos.ap-nanjing.myqcloud.com/proxy-1645251297.wasm
+                        uri: https://pubic-1259210478.cos.ap-nanjing.myqcloud.com/proxy-1645271228.wasm
                   runtime: envoy.wasm.runtime.v8
