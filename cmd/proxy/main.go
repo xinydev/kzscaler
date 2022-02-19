@@ -17,6 +17,7 @@ package main
 import (
 	"github.com/tetratelabs/proxy-wasm-go-sdk/proxywasm"
 	"github.com/tetratelabs/proxy-wasm-go-sdk/proxywasm/types"
+	"net/http"
 )
 
 func main() {
@@ -45,6 +46,10 @@ func (*pluginContext) NewHttpContext(contextID uint32) types.HttpContext {
 	return &httpHeaders{contextID: contextID}
 }
 
+func (*pluginContext) OnTick() {
+
+}
+
 type httpHeaders struct {
 	// Embed the default http context here,
 	// so that we don't need to reimplement all the methods.
@@ -54,7 +59,7 @@ type httpHeaders struct {
 
 // Override types.DefaultHttpContext.
 func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) types.Action {
-	err := proxywasm.ReplaceHttpRequestHeader("test", "best")
+	err := proxywasm.AddHttpRequestHeader("kzscaler-enabled", "true")
 	if err != nil {
 		proxywasm.LogCritical("failed to set request header: test")
 	}
@@ -63,10 +68,15 @@ func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) t
 	if err != nil {
 		proxywasm.LogCriticalf("failed to get request headers: %v", err)
 	}
-
 	for _, h := range hs {
 		proxywasm.LogWarnf("request header --> %s: %s", h[0], h[1])
 	}
+	resp, err := http.Get("http://kzscaler.kzscaler")
+	if err != nil {
+		proxywasm.LogWarnf("request error,%s", err)
+	}
+	proxywasm.LogWarnf("request to controller,code:%d", resp.StatusCode)
+
 	return types.ActionContinue
 }
 

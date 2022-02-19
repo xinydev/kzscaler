@@ -2,6 +2,7 @@ package zeroscaler
 
 import (
 	"context"
+	kzscheduler "github.com/kzscaler/kzscaler/pkg/scheduler"
 
 	v1alpha1 "github.com/kzscaler/kzscaler/pkg/apis/scaling/v1alpha1"
 	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
@@ -12,6 +13,7 @@ import (
 type Reconciler struct {
 	// dynamicClientSet allows us to configure pluggable Build objects
 	dynamicClientSet dynamic.Interface
+	scheduler        kzscheduler.Scheduler
 }
 
 // Check that our Reconciler implements parallelreconciler.Interface

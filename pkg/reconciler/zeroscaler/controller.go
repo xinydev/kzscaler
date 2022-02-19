@@ -2,6 +2,9 @@ package zeroscaler
 
 import (
 	"context"
+	"github.com/kzscaler/kzscaler/pkg/scheduler"
+	"go.uber.org/zap"
+	"knative.dev/pkg/logging"
 
 	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
 	"knative.dev/pkg/configmap"
@@ -22,5 +25,12 @@ func NewController(
 	}
 	impl := zeroscalerreconciler.NewImpl(ctx, r)
 
+	s := scheduler.NewScheduler()
+	go func() {
+		err := s.Start(ctx)
+		if err != nil {
+			logging.FromContext(ctx).Errorw("Failed starting simple scheduler.", zap.Error(err))
+		}
+	}()
 	return impl
 }
