@@ -74,7 +74,7 @@ func (ctx *pluginContext) OnPluginStart(pluginConfigurationSize int) types.OnPlu
 		ctx.sched.SetCluster(configs[0])
 	}
 
-	proxywasm.LogInfof("plugin config: %s", string(data))
+	proxywasm.LogWarnf("plugin config: %s", string(data))
 
 	return types.OnPluginStartStatusOK
 }
@@ -127,11 +127,12 @@ func (s *Scheduler) SetCluster(c string) {
 func (s *Scheduler) SyncService() error {
 	return makeRequest(
 		s.cluster,
-		"service",
+		"/service",
 		"kzscaler.kzscaler",
 		func(bytes []byte) {
 			// envoy wasm does not support json
 			// services:  service1%10&service2%10
+			proxywasm.LogWarnf("new resp,%s", string(bytes))
 			for _, svc := range strings.Split(string(bytes), "&") {
 				svcParts := strings.Split(svc, "%")
 				cnt, _ := strconv.Atoi(svcParts[1])
@@ -146,7 +147,7 @@ func (s *Scheduler) RequestService(name string, cid uint32) (types.Action, error
 			// need to call scale up first
 			err := makeRequest(
 				s.cluster,
-				fmt.Sprintf("scale_up/%s", name),
+				fmt.Sprintf("/scale_up/%s", name),
 				"kzscaler.kzscaler",
 				func(bytes []byte) {
 					if err := proxywasm.SetEffectiveContext(cid); err != nil {
@@ -182,5 +183,8 @@ func makeRequest(cluster, path, authority string, f func([]byte)) error {
 			f(resp)
 		},
 	)
+	if err != nil {
+		proxywasm.LogCriticalf("request error:%s/n", cluster, path, authority)
+	}
 	return err
 }
