@@ -75,9 +75,10 @@ kubectl apply -f example/userservices. yaml -n testns
 
 ```shell
 
-ko apply -f config/
+kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-alpha/release.yaml
 
-kubectl apply -f config/600-envoyconfig. yaml -n testns
+# envoy config
+kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-alpha/release-wasm.yaml -n testns
 
 kubectl apply -f example/zeroscaler. yaml -n testns
 
