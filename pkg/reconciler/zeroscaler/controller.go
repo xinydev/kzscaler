@@ -2,9 +2,7 @@ package zeroscaler
 
 import (
 	"context"
-	zeroscalerinformers "github.com/kzscaler/kzscaler/pkg/client/injection/informers/scaling/v1alpha1/zeroscaler"
-	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
-	"github.com/kzscaler/kzscaler/pkg/scheduler"
+
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/apps/v1"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
@@ -15,6 +13,10 @@ import (
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/tracker"
+
+	zeroscalerinformers "github.com/kzscaler/kzscaler/pkg/client/injection/informers/scaling/v1alpha1/zeroscaler"
+	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
+	"github.com/kzscaler/kzscaler/pkg/scheduler"
 )
 
 // NewController initializes the controller and is called by the generated code

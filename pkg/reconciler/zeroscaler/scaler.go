@@ -3,9 +3,8 @@ package zeroscaler
 import (
 	"context"
 	"fmt"
-	"github.com/kzscaler/kzscaler/pkg/apis/scaling/v1alpha1"
-	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
-	kzscheduler "github.com/kzscaler/kzscaler/pkg/scheduler"
+	"time"
+
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -15,7 +14,10 @@ import (
 	"knative.dev/pkg/logging"
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/tracker"
-	"time"
+
+	"github.com/kzscaler/kzscaler/pkg/apis/scaling/v1alpha1"
+	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
+	kzscheduler "github.com/kzscaler/kzscaler/pkg/scheduler"
 )
 
 type Reconciler struct {

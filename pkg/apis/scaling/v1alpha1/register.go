@@ -1,10 +1,11 @@
 package v1alpha1
 
 import (
-	"github.com/kzscaler/kzscaler/pkg/apis/scaling"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	"github.com/kzscaler/kzscaler/pkg/apis/scaling"
 )
 
 var SchemeGroupVersion = schema.GroupVersion{Group: scaling.GroupName, Version: "v1alpha1"}
