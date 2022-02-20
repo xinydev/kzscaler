@@ -3,7 +3,7 @@
 KZScaler can enable scaling to/from zero feature for any HTTP service in Istio enabled Kubernetes clusters without any
 modification
 
-The highlight of kzscaler is that there is no need to modify the existing services to enable the above feature
+The highlight of KZScaler is that there is no need to modify the existing services to enable the above feature
 
 [中文简介](README-CN.md)
 
@@ -21,7 +21,7 @@ Hijack all outbound traffic, and analyze whether the number of instances of targ
 
 ### 1->0(WIP)
 
-Hijack all inbound traffic and expose a metric, kzscaler controller
+Hijack all inbound traffic and expose a metric, KZScaler controller
 
 ## Suitable scenarios
 
@@ -71,7 +71,7 @@ kubectl apply -f example/userservices. yaml -n testns
 
 ```
 
-### Install kzscaler
+### Install KZScaler
 
 ```shell
 
@@ -133,7 +133,7 @@ demo-server   1/1      1           1           128m
 
 kubectl delete -f config/600-envoyconfig. yaml -n testns
 
-kubectl delete ns kzscaler testns
+kubectl delete ns KZScaler testns
 
 ```
 
@@ -143,7 +143,7 @@ kubectl delete ns kzscaler testns
 
 - [ ] grpc supported
 
-- [ ] reduce outbound proxy and kzscaler controller requests
+- [ ] reduce outbound proxy and KZScaler controller requests
 
 ## Contributing
 
