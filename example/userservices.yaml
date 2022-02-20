@@ -23,11 +23,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: demo-service
+  name: demo-server
 spec:
   ports:
     - name: http
-      port: 8080
+      port: 80
       protocol: TCP
       targetPort: http
   selector:
@@ -37,4 +37,21 @@ status:
   loadBalancer: { }
 
 ---
-# kubectl label namespace default istio-injection=enabled
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: debug
+  template:
+    metadata:
+      labels:
+        name: debug
+    spec:
+      containers:
+        - image: ubuntu:22.04
+          command: [ "/bin/bash", "-c", "sleep 36000" ]
+          name: container

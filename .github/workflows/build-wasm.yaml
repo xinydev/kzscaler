@@ -1,4 +1,4 @@
-name: builf wasm
+name: Build Wasm
 on:
   push:
 
