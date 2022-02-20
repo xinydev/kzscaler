@@ -45,15 +45,17 @@ const (
 )
 
 type ZeroScalerSpec struct {
+	Service  duckv1.KReference `json:"service"`
+	Workload duckv1.KReference `json:"workload"`
 }
 
 type ZeroScalerStatus struct {
 	duckv1.Status `json:",inline"`
+	Replicas      *int32 `json:"replicas,omitempty"`
 }
 
+// ZeroScalerList is a list of ZeroScaler resources
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// PodAutoscalerList is a list of PodAutoscaler resources
 type ZeroScalerList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`

@@ -7,20 +7,20 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // Scheduler tell kzscaler-proxy what to do
 type Scheduler interface {
 	Start(ctx context.Context) error
-	AddService(name string, replicate int)
-	UpdateReplicas(name string, replicate int)
+	UpdateReplicas(name string, replicate int32)
+	AddScaleHandler(name string, h func(int32) error)
 }
 
 type SimpleScheduler struct {
-	services map[string]int // zero-scale feature enabled services
-	router   *gin.Engine
-	logger   *zap.SugaredLogger
+	services     map[string]int32 // zero-scale feature enabled services
+	scaleHandler map[string]func(int32) error
+	router       *gin.Engine
+	logger       *zap.SugaredLogger
 }
 
 type SimpleSchedulerArgs struct {
@@ -29,9 +29,10 @@ type SimpleSchedulerArgs struct {
 func NewScheduler() Scheduler {
 	l, _ := zap.NewDevelopment()
 	return &SimpleScheduler{
-		services: map[string]int{},
-		router:   gin.Default(),
-		logger:   l.Sugar(),
+		services:     map[string]int32{},
+		scaleHandler: map[string]func(int32) error{},
+		router:       gin.Default(),
+		logger:       l.Sugar(),
 	}
 }
 
@@ -44,13 +45,12 @@ func (s *SimpleScheduler) Start(ctx context.Context) error {
 	return s.router.Run(":8080")
 }
 
-func (s *SimpleScheduler) AddService(name string, replicate int) {
+func (s *SimpleScheduler) UpdateReplicas(name string, replicate int32) {
 	s.services[name] = replicate
-
 }
 
-func (s *SimpleScheduler) UpdateReplicas(name string, replicate int) {
-	s.services[name] = replicate
+func (s *SimpleScheduler) AddScaleHandler(name string, h func(int32) error) {
+	s.scaleHandler[name] = h
 }
 
 func (s *SimpleScheduler) getServicesHandler(c *gin.Context) {
@@ -66,6 +66,17 @@ func (s *SimpleScheduler) getServicesHandler(c *gin.Context) {
 func (s *SimpleScheduler) scaleUpHandler(c *gin.Context) {
 	name := c.Param("name")
 	s.logger.Infof("service need scale up,%s", name)
-	time.Sleep(3 * time.Second)
-	c.String(http.StatusOK, "")
+
+	if handler, ok := s.scaleHandler[name]; ok {
+		err := handler(1)
+		if err != nil {
+			s.logger.Errorf("scale up error,%s", err)
+			c.String(520, "")
+		} else {
+			c.String(http.StatusOK, "")
+		}
+		return
+	}
+
+	c.String(http.StatusNotFound, "")
 }

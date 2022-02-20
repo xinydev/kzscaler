@@ -31,6 +31,15 @@ func (*ZeroScaler) GetConditionSet() apis.ConditionSet {
 }
 
 // GetGroupVersionKind returns the GVK for the PodAutoscaler.
-func (pa *ZeroScaler) GetGroupVersionKind() schema.GroupVersionKind {
+func (zs *ZeroScaler) GetGroupVersionKind() schema.GroupVersionKind {
 	return SchemeGroupVersion.WithKind("ZeroScaler")
+}
+
+func (zss *ZeroScalerStatus) MarkZeroScalerReady() {
+	scalerCondSet.Manage(zss).MarkTrue(ZeroScalerConditionReady)
+}
+
+func (zss *ZeroScalerStatus) MarkZeroScalerNotReady(reason, messageFormat string, messageA ...interface{}) {
+	scalerCondSet.Manage(zss).MarkFalse(ZeroScalerConditionReady, reason, messageFormat, messageA...)
+
 }

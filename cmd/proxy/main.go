@@ -35,7 +35,7 @@ type vmContext struct {
 // Override types.DefaultVMContext.
 func (*vmContext) NewPluginContext(contextID uint32) types.PluginContext {
 	return &pluginContext{
-		tickMilliseconds: 3 * 1000,
+		tickMilliseconds: 10 * 1000,
 		sched:            NewScheduler(),
 	}
 }

@@ -1,7 +1,17 @@
-apiVersion: zeroscaler.scaling.xiny.dev/v1alpha1
-kind: ZerroScaler
+apiVersion: scaling.xiny.dev/v1alpha1
+kind: ZeroScaler
 metadata:
   name: zs
 spec:
+  service:
+    kind: Service
+    apiVersion: v1
+    name: demo-service
+    namespace: default
+  workload:
+    kind: Deployment
+    apiVersion: apps/v1
+    name: demo-server
+    namespace: default
 
 
