@@ -57,7 +57,7 @@ func (s *SimpleScheduler) getServicesHandler(c *gin.Context) {
 
 	services := make([]string, 0)
 	for k, v := range s.services {
-		services = append(services, fmt.Sprintf("%s%%s", k, v))
+		services = append(services, fmt.Sprintf("%s%s%d", k, "%", v))
 	}
 
 	c.String(http.StatusOK, strings.Join(services, "&"))

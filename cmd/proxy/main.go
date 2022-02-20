@@ -50,31 +50,37 @@ type pluginContext struct {
 
 // Override types.DefaultPluginContext.
 func (ctx *pluginContext) NewHttpContext(contextID uint32) types.HttpContext {
+	m := proxywasm.DefineCounterMetric("kzscaler")
 	return &httpHeaders{
 		contextID: contextID,
 		sched:     ctx.sched,
+		reqCnt:    &m,
 	}
 }
 
 func (ctx *pluginContext) OnPluginStart(pluginConfigurationSize int) types.OnPluginStartStatus {
-	if err := proxywasm.SetTickPeriodMilliSeconds(ctx.tickMilliseconds); err != nil {
-		proxywasm.LogCriticalf("failed to set tick period: %v", err)
-		return types.OnPluginStartStatusFailed
-	}
-	proxywasm.LogWarnf("set tick period milliseconds: %d", ctx.tickMilliseconds)
-
 	// read config
 	data, err := proxywasm.GetPluginConfiguration()
 	if err != nil {
 		proxywasm.LogCriticalf("error reading plugin configuration: %v", err)
 	}
+	proxywasm.LogWarnf("plugin config: %s", string(data))
+
 	configs := strings.Split(string(data), "&")
 
-	if len(configs) > 0 {
-		ctx.sched.SetCluster(configs[0])
+	// we are in INBOUND proxy,only export metric
+	if len(configs) == 0 {
+		ctx.sched.SetProxyMode(ProxyInRequest)
+		return types.OnPluginStartStatusOK
 	}
 
-	proxywasm.LogWarnf("plugin config: %s", string(data))
+	// we are in OUTBOUND proxy
+	ctx.sched.SetCluster(configs[0])
+	if err := proxywasm.SetTickPeriodMilliSeconds(ctx.tickMilliseconds); err != nil {
+		proxywasm.LogCriticalf("failed to set tick period: %v", err)
+		return types.OnPluginStartStatusFailed
+	}
+	proxywasm.LogWarnf("set tick period milliseconds: %d", ctx.tickMilliseconds)
 
 	return types.OnPluginStartStatusOK
 }
@@ -90,6 +96,7 @@ type httpHeaders struct {
 	types.DefaultHttpContext
 	contextID uint32
 	sched     *Scheduler
+	reqCnt    *proxywasm.MetricCounter
 }
 
 // Override types.DefaultHttpContext.
@@ -101,14 +108,25 @@ func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) t
 	authority, _ := proxywasm.GetHttpRequestHeader(":authority")
 	proxywasm.LogWarnf("request auth:%s", authority)
 
+	// export metrics
+	ctx.reqCnt.Increment(1)
+
 	act, err := ctx.sched.RequestService(authority, ctx.contextID)
 
 	return act
 }
 
+type ProxyMode string
+
+const (
+	ProxyInRequest  ProxyMode = "in"
+	ProxyOutRequest ProxyMode = "out"
+)
+
 type Scheduler struct {
 	cluster  string
 	services map[string]int
+	mode     ProxyMode
 }
 
 func NewScheduler() *Scheduler {
@@ -123,8 +141,14 @@ func NewScheduler() *Scheduler {
 func (s *Scheduler) SetCluster(c string) {
 	s.cluster = c
 }
+func (s *Scheduler) SetProxyMode(mode ProxyMode) {
+	s.mode = mode
+}
 
 func (s *Scheduler) SyncService() error {
+	if s.mode == ProxyInRequest {
+		return nil
+	}
 	return makeRequest(
 		s.cluster,
 		"/service",
@@ -132,7 +156,6 @@ func (s *Scheduler) SyncService() error {
 		func(bytes []byte) {
 			// envoy wasm does not support json
 			// services:  service1%10&service2%10
-			proxywasm.LogWarnf("new resp,%s", string(bytes))
 			for _, svc := range strings.Split(string(bytes), "&") {
 				svcParts := strings.Split(svc, "%")
 				cnt, _ := strconv.Atoi(svcParts[1])
@@ -142,6 +165,11 @@ func (s *Scheduler) SyncService() error {
 }
 
 func (s *Scheduler) RequestService(name string, cid uint32) (types.Action, error) {
+	// check service is zero-scale enabled or not
+	if s.mode == ProxyInRequest {
+		return types.ActionContinue, nil
+	}
+
 	if v, ok := s.services[name]; ok {
 		if v == 0 {
 			// need to call scale up first
