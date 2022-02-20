@@ -64,7 +64,7 @@ func (s *SimpleScheduler) getServicesHandler(c *gin.Context) {
 }
 
 func (s *SimpleScheduler) scaleUpHandler(c *gin.Context) {
-	name := c.Param("name")
+	name := c.Param("service")
 	s.logger.Infof("service need scale up,%s", name)
 
 	if handler, ok := s.scaleHandler[name]; ok {
@@ -76,6 +76,8 @@ func (s *SimpleScheduler) scaleUpHandler(c *gin.Context) {
 			c.String(http.StatusOK, "")
 		}
 		return
+	} else {
+		s.logger.Infof("no such service")
 	}
 
 	c.String(http.StatusNotFound, "")

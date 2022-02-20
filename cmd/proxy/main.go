@@ -191,7 +191,7 @@ func makeRequest(cluster, path, authority string, f func([]byte)) error {
 		headers,
 		nil,
 		nil,
-		3000,
+		1000*15,
 		func(numHeaders, bodySize, numTrailers int) {
 			resp, _ := proxywasm.GetHttpCallResponseBody(0, 10000)
 			f(resp)

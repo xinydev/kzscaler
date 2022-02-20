@@ -21,7 +21,7 @@ def get_all_service():
 
 @app.route("/scale_up/<service_name>", methods=['GET'])
 def scale_up(service_name):
-    time.sleep(2)
+    time.sleep(20)
     print("scale up request:", service_name)
     return "OK"
 
