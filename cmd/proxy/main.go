@@ -62,6 +62,20 @@ func (ctx *pluginContext) OnPluginStart(pluginConfigurationSize int) types.OnPlu
 		return types.OnPluginStartStatusFailed
 	}
 	proxywasm.LogWarnf("set tick period milliseconds: %d", ctx.tickMilliseconds)
+
+	// read config
+	data, err := proxywasm.GetPluginConfiguration()
+	if err != nil {
+		proxywasm.LogCriticalf("error reading plugin configuration: %v", err)
+	}
+	configs := strings.Split(string(data), "&")
+
+	if len(configs) > 0 {
+		ctx.sched.SetCluster(configs[0])
+	}
+
+	proxywasm.LogInfof("plugin config: %s", string(data))
+
 	return types.OnPluginStartStatusOK
 }
 func (ctx *pluginContext) OnTick() {
@@ -103,6 +117,11 @@ func NewScheduler() *Scheduler {
 		//cluster:           "outbound|80||kzscaler.kzscaler.svc.cluster.local",
 		cluster: "mock_service",
 	}
+}
+
+// SetCluster set envoy cluster for requesting
+func (s *Scheduler) SetCluster(c string) {
+	s.cluster = c
 }
 
 func (s *Scheduler) SyncService() error {

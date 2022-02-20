@@ -37,6 +37,9 @@ static_resources:
                             code:
                               local:
                                 filename: "./cmd/proxy/main.go.wasm"
+                          configuration:
+                            "@type": type.googleapis.com/google.protobuf.StringValue
+                            value: "mock_service&"
                   - name: envoy.filters.http.router
   clusters:
     - name: mock_service
