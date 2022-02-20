@@ -17,8 +17,7 @@ The highlight of kzscaler is that there is no need to modify the existing servic
 
 ### 0->1
 
-Hijack all outbound traffic, and analyze whether the number of instances of target service at is 0. If it is 0, scale to
-1.
+Hijack all outbound traffic, and analyze whether the number of instances of target service is 0. If it is 0, scale to 1.
 
 ### 1->0(WIP)
 
@@ -26,8 +25,8 @@ Hijack all inbound traffic and expose a metric, kzscaler controller
 
 ## Suitable scenarios
 
-There are a large number of inactive microservices in the cluster. Microservices communicate with each other very **
-infrequently**. Admin hopes to reduce the resource which microservices using
+There are a large number of inactive microservices in the cluster. Microservices communicate with each other very
+**infrequently**. Admin hopes to reduce the resource which microservices using
 
 ## Limit
 
@@ -140,13 +139,13 @@ kubectl delete ns kzscaler testns
 
 ## Roadmap
 
--[ ] supports automatic scaling of idle instances to 0
+- [ ] supports automatic scaling of idle instances to 0
 
--[ ] grpc supported
+- [ ] grpc supported
 
--[ ] reduce outbound proxy and kzscaler controller requests
+- [ ] reduce outbound proxy and kzscaler controller requests
 
 ## Contributing
 
-If you are interested, have questions or found some bugs, etc., you can use Issues or e-mail（ xinydev@gmail.com ）to
+If you are interested, have questions or found some bugs, etc., you can use Issues or e-mail(xinydev@gmail.com) to
 provide feedback or **participate in project development**
