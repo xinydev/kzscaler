@@ -22,24 +22,6 @@ spec:
               ads: { }
               initial_fetch_timeout: 0s
             type_urls: [ "type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm" ]
-    - applyTo: HTTP_FILTER
-      match:
-        context: SIDECAR_INBOUND
-        listener:
-          filterChain:
-            filter:
-              name: envoy.filters.network.http_connection_manager
-              subFilter:
-                name: envoy.filters.http.router
-      patch:
-        operation: INSERT_BEFORE
-        value:
-          name: kzscaler-filter-config
-          config_discovery:
-            config_source:
-              ads: { }
-              initial_fetch_timeout: 0s
-            type_urls: [ "type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm" ]
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
@@ -63,29 +45,8 @@ spec:
                   code:
                     remote:
                       http_uri:
-                        uri: https://pubic-1259210478.cos.ap-nanjing.myqcloud.com/proxy-1645329228.wasm
+                        uri: https://pubic-1259210478.cos.ap-nanjing.myqcloud.com/proxy-1645354087.wasm
                   runtime: envoy.wasm.runtime.v8
                 configuration:
                   "@type": type.googleapis.com/google.protobuf.StringValue
                   value: "outbound|80||kzscaler.kzscaler.svc.cluster.local&"
-    - applyTo: EXTENSION_CONFIG
-      match:
-        context: SIDECAR_INBOUND
-      patch:
-        operation: ADD
-        value:
-          name: kzscaler-filter-config
-          typed_config:
-            '@type': type.googleapis.com/udpa.type.v1.TypedStruct
-            type_url: type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
-            value:
-              config:
-                vm_config:
-                  code:
-                    remote:
-                      http_uri:
-                        uri: https://pubic-1259210478.cos.ap-nanjing.myqcloud.com/proxy-1645329228.wasm
-                  runtime: envoy.wasm.runtime.v8
-                configuration:
-                  "@type": type.googleapis.com/google.protobuf.StringValue
-                  value: ""

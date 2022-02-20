@@ -70,7 +70,6 @@ func (ctx *pluginContext) OnPluginStart(pluginConfigurationSize int) types.OnPlu
 
 	// we are in INBOUND proxy,only export metric
 	if len(configs) == 0 {
-		ctx.sched.SetProxyMode(ProxyInRequest)
 		return types.OnPluginStartStatusOK
 	}
 
@@ -116,17 +115,9 @@ func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) t
 	return act
 }
 
-type ProxyMode string
-
-const (
-	ProxyInRequest  ProxyMode = "in"
-	ProxyOutRequest ProxyMode = "out"
-)
-
 type Scheduler struct {
 	cluster  string
 	services map[string]int
-	mode     ProxyMode
 }
 
 func NewScheduler() *Scheduler {
@@ -141,14 +132,8 @@ func NewScheduler() *Scheduler {
 func (s *Scheduler) SetCluster(c string) {
 	s.cluster = c
 }
-func (s *Scheduler) SetProxyMode(mode ProxyMode) {
-	s.mode = mode
-}
 
 func (s *Scheduler) SyncService() error {
-	if s.mode == ProxyInRequest {
-		return nil
-	}
 	return makeRequest(
 		s.cluster,
 		"/service",
@@ -166,13 +151,14 @@ func (s *Scheduler) SyncService() error {
 
 func (s *Scheduler) RequestService(name string, cid uint32) (types.Action, error) {
 	// check service is zero-scale enabled or not
-	if s.mode == ProxyInRequest {
-		return types.ActionContinue, nil
-	}
+
+	name = strings.Split(name, ":")[0]
 
 	if v, ok := s.services[name]; ok {
 		if v == 0 {
 			// need to call scale up first
+			proxywasm.LogWarnf("scale up first,%s", name)
+
 			err := makeRequest(
 				s.cluster,
 				fmt.Sprintf("/scale_up/%s", name),
