@@ -49,6 +49,14 @@ brew install istioctl
 istioctl install --set profile=demo -y
 ```
 
+#### Prometheus
+
+```shell
+kubectl install -f https://raw.githubusercontent.com/istio/istio/release-1.13/samples/addons/prometheus.yaml
+```
+
+或者按照说明自行安装: https://istio.io/latest/docs/ops/integrations/prometheus/
+
 #### 测试用的服务
 
 ```shell
