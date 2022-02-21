@@ -3,11 +3,12 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"k8s.io/apimachinery/pkg/util/wait"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
