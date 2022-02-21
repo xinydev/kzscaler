@@ -19,8 +19,7 @@ KZScaler的亮点是启用上述的功能不需要对现有服务进行修改
 
 ### 1->0
 
-正在实现中  
-劫持所有INBOUND流量，暴露一个Metric，kzscaler-controller
+KZScaler-controller 通过prometheus暴露的指标来判断是否要缩放到0
 
 ## 适合场景
 
@@ -115,7 +114,7 @@ kubectl delete ns kzscaler testns
 
 ## Roadmap
 
-- [ ] 支持自动将空闲实例缩放到0
+- [x] 支持自动将空闲实例缩放到0
 - [ ] 支持gRPC
 - [ ] 减少outbound-proxy与kzscaler-controller的请求
 

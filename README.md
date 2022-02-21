@@ -19,9 +19,9 @@ The highlight of KZScaler is that there is no need to modify the existing servic
 
 Hijack all outbound traffic, and analyze whether the number of instances of target service is 0. If it is 0, scale to 1.
 
-### 1->0(WIP)
+### 1->0
 
-Hijack all inbound traffic and expose a metric, KZScaler controller
+KZScaler controller scale down service based on the prometheus metrics
 
 ## Suitable scenarios
 
@@ -58,6 +58,14 @@ brew install istioctl
 istioctl install --set profile=demo -y
 
 ```
+
+#### Prometheus for istio
+
+```shell
+kubectl install -f https://raw.githubusercontent.com/istio/istio/release-1.13/samples/addons/prometheus.yaml
+```
+
+or follow the guide: https://istio.io/latest/docs/ops/integrations/prometheus/
 
 #### User services for testing
 
@@ -140,11 +148,11 @@ kubectl delete ns KZScaler testns
 
 ## Roadmap
 
-- [ ] supports automatic scaling of idle instances to 0
+- [x] supports automatic scaling of idle instances to 0
 
 - [ ] grpc supported
 
-- [ ] reduce outbound proxy and KZScaler controller requests
+- [ ] reduce requests between proxy and KZScaler controller
 
 ## Contributing
 
