@@ -22,24 +22,24 @@ import (
 )
 
 var scalerCondSet = apis.NewLivingConditionSet(
-	ZeroScalerConditionReady,
+	ZeroScaledObjectConditionReady,
 )
 
 // GetConditionSet retrieves the condition set for this resource. Implements the KRShaped interface.
-func (*ZeroScaler) GetConditionSet() apis.ConditionSet {
+func (*ZeroScaledObject) GetConditionSet() apis.ConditionSet {
 	return scalerCondSet
 }
 
 // GetGroupVersionKind returns the GVK for the PodAutoscaler.
-func (zs *ZeroScaler) GetGroupVersionKind() schema.GroupVersionKind {
-	return SchemeGroupVersion.WithKind("ZeroScaler")
+func (zs *ZeroScaledObject) GetGroupVersionKind() schema.GroupVersionKind {
+	return SchemeGroupVersion.WithKind("ZeroScaledObject")
 }
 
-func (zss *ZeroScalerStatus) MarkZeroScalerReady() {
-	scalerCondSet.Manage(zss).MarkTrue(ZeroScalerConditionReady)
+func (zss *ZeroScaledObjectStatus) MarkZeroScaledObjectReady() {
+	scalerCondSet.Manage(zss).MarkTrue(ZeroScaledObjectConditionReady)
 }
 
-func (zss *ZeroScalerStatus) MarkZeroScalerNotReady(reason, messageFormat string, messageA ...interface{}) {
-	scalerCondSet.Manage(zss).MarkFalse(ZeroScalerConditionReady, reason, messageFormat, messageA...)
+func (zss *ZeroScaledObjectStatus) MarkZeroScaledObjectNotReady(reason, messageFormat string, messageA ...interface{}) {
+	scalerCondSet.Manage(zss).MarkFalse(ZeroScaledObjectConditionReady, reason, messageFormat, messageA...)
 
 }

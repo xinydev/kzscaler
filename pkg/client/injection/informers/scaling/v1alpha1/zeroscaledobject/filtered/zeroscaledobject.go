@@ -55,7 +55,7 @@ func withInformer(ctx context.Context) (context.Context, []controller.Informer) 
 	infs := []controller.Informer{}
 	for _, selector := range labelSelectors {
 		f := filtered.Get(ctx, selector)
-		inf := f.Scaling().V1alpha1().ZeroScalers()
+		inf := f.Scaling().V1alpha1().ZeroScaledObjects()
 		ctx = context.WithValue(ctx, Key{Selector: selector}, inf)
 		infs = append(infs, inf.Informer())
 	}
@@ -77,13 +77,13 @@ func withDynamicInformer(ctx context.Context) context.Context {
 }
 
 // Get extracts the typed informer from the context.
-func Get(ctx context.Context, selector string) v1alpha1.ZeroScalerInformer {
+func Get(ctx context.Context, selector string) v1alpha1.ZeroScaledObjectInformer {
 	untyped := ctx.Value(Key{Selector: selector})
 	if untyped == nil {
 		logging.FromContext(ctx).Panicf(
-			"Unable to fetch github.com/kzscaler/kzscaler/pkg/client/informers/externalversions/scaling/v1alpha1.ZeroScalerInformer with selector %s from context.", selector)
+			"Unable to fetch github.com/kzscaler/kzscaler/pkg/client/informers/externalversions/scaling/v1alpha1.ZeroScaledObjectInformer with selector %s from context.", selector)
 	}
-	return untyped.(v1alpha1.ZeroScalerInformer)
+	return untyped.(v1alpha1.ZeroScaledObjectInformer)
 }
 
 type wrapper struct {
@@ -94,28 +94,28 @@ type wrapper struct {
 	selector string
 }
 
-var _ v1alpha1.ZeroScalerInformer = (*wrapper)(nil)
-var _ scalingv1alpha1.ZeroScalerLister = (*wrapper)(nil)
+var _ v1alpha1.ZeroScaledObjectInformer = (*wrapper)(nil)
+var _ scalingv1alpha1.ZeroScaledObjectLister = (*wrapper)(nil)
 
 func (w *wrapper) Informer() cache.SharedIndexInformer {
-	return cache.NewSharedIndexInformer(nil, &apisscalingv1alpha1.ZeroScaler{}, 0, nil)
+	return cache.NewSharedIndexInformer(nil, &apisscalingv1alpha1.ZeroScaledObject{}, 0, nil)
 }
 
-func (w *wrapper) Lister() scalingv1alpha1.ZeroScalerLister {
+func (w *wrapper) Lister() scalingv1alpha1.ZeroScaledObjectLister {
 	return w
 }
 
-func (w *wrapper) ZeroScalers(namespace string) scalingv1alpha1.ZeroScalerNamespaceLister {
+func (w *wrapper) ZeroScaledObjects(namespace string) scalingv1alpha1.ZeroScaledObjectNamespaceLister {
 	return &wrapper{client: w.client, namespace: namespace, selector: w.selector}
 }
 
-func (w *wrapper) List(selector labels.Selector) (ret []*apisscalingv1alpha1.ZeroScaler, err error) {
+func (w *wrapper) List(selector labels.Selector) (ret []*apisscalingv1alpha1.ZeroScaledObject, err error) {
 	reqs, err := labels.ParseToRequirements(w.selector)
 	if err != nil {
 		return nil, err
 	}
 	selector = selector.Add(reqs...)
-	lo, err := w.client.ScalingV1alpha1().ZeroScalers(w.namespace).List(context.TODO(), v1.ListOptions{
+	lo, err := w.client.ScalingV1alpha1().ZeroScaledObjects(w.namespace).List(context.TODO(), v1.ListOptions{
 		LabelSelector: selector.String(),
 		// TODO(mattmoor): Incorporate resourceVersion bounds based on staleness criteria.
 	})
@@ -128,9 +128,9 @@ func (w *wrapper) List(selector labels.Selector) (ret []*apisscalingv1alpha1.Zer
 	return ret, nil
 }
 
-func (w *wrapper) Get(name string) (*apisscalingv1alpha1.ZeroScaler, error) {
+func (w *wrapper) Get(name string) (*apisscalingv1alpha1.ZeroScaledObject, error) {
 	// TODO(mattmoor): Check that the fetched object matches the selector.
-	return w.client.ScalingV1alpha1().ZeroScalers(w.namespace).Get(context.TODO(), name, v1.GetOptions{
+	return w.client.ScalingV1alpha1().ZeroScaledObjects(w.namespace).Get(context.TODO(), name, v1.GetOptions{
 		// TODO(mattmoor): Incorporate resourceVersion bounds based on staleness criteria.
 	})
 }

@@ -28,8 +28,8 @@ type FakeScalingV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeScalingV1alpha1) ZeroScalers(namespace string) v1alpha1.ZeroScalerInterface {
-	return &FakeZeroScalers{c, namespace}
+func (c *FakeScalingV1alpha1) ZeroScaledObjects(namespace string) v1alpha1.ZeroScaledObjectInterface {
+	return &FakeZeroScaledObjects{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

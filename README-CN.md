@@ -19,8 +19,7 @@ KZScaler的亮点是启用上述的功能不需要对现有服务进行修改
 
 ### 1->0
 
-正在实现中  
-劫持所有INBOUND流量，暴露一个Metric，kzscaler-controller
+KZScaler-controller 通过prometheus暴露的指标来判断是否要缩放到0
 
 ## 适合场景
 
@@ -50,23 +49,35 @@ brew install istioctl
 istioctl install --set profile=demo -y
 ```
 
+#### Prometheus
+
+```shell
+kubectl install -f https://raw.githubusercontent.com/istio/istio/release-1.13/samples/addons/prometheus.yaml
+```
+
+或者按照说明自行安装: https://istio.io/latest/docs/ops/integrations/prometheus/
+
 #### 测试用的服务
 
 ```shell
 kubectl create ns testns
 kubectl label namespace testns istio-injection=enabled
-kubectl apply -f example/userservices.yaml -n testns
+kubectl apply -f https://raw.githubusercontent.com/kzscaler/kzscaler/v0.0.1-alpha/example/userservices.yaml -n testns
 ```
 
 ### 安装KZScaler
 
 ```shell
+
 kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-alpha/release.yaml
 
-# envoy配置
+# envoy config
 kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-alpha/release-wasm.yaml -n testns
 
-kubectl apply -f example/zeroscaler. yaml -n testns
+kubectl apply -f https://raw.githubusercontent.com/kzscaler/kzscaler/v0.0.1-alpha/example/zeroscaler.yaml -n testns
+
+```
+
 ```
 
 ### 验证
@@ -115,7 +126,7 @@ kubectl delete ns kzscaler testns
 
 ## Roadmap
 
-- [ ] 支持自动将空闲实例缩放到0
+- [x] 支持自动将空闲实例缩放到0
 - [ ] 支持gRPC
 - [ ] 减少outbound-proxy与kzscaler-controller的请求
 

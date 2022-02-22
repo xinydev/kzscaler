@@ -22,12 +22,12 @@ import (
 	context "context"
 
 	fake "github.com/kzscaler/kzscaler/pkg/client/injection/informers/factory/fake"
-	zeroscaler "github.com/kzscaler/kzscaler/pkg/client/injection/informers/scaling/v1alpha1/zeroscaler"
+	zeroscaledobject "github.com/kzscaler/kzscaler/pkg/client/injection/informers/scaling/v1alpha1/zeroscaledobject"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 )
 
-var Get = zeroscaler.Get
+var Get = zeroscaledobject.Get
 
 func init() {
 	injection.Fake.RegisterInformer(withInformer)
@@ -35,6 +35,6 @@ func init() {
 
 func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	f := fake.Get(ctx)
-	inf := f.Scaling().V1alpha1().ZeroScalers()
-	return context.WithValue(ctx, zeroscaler.Key{}, inf), inf.Informer()
+	inf := f.Scaling().V1alpha1().ZeroScaledObjects()
+	return context.WithValue(ctx, zeroscaledobject.Key{}, inf), inf.Informer()
 }

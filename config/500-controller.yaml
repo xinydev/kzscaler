@@ -51,7 +51,7 @@ spec:
       serviceAccountName: kzscaler-controller
       enableServiceLinks: false
       containers:
-        - name: eventing-controller
+        - name: controller
           terminationMessagePolicy: FallbackToLogsOnError
           image: ko://github.com/kzscaler/kzscaler/cmd/controller
 

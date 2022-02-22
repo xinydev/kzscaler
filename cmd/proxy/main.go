@@ -199,7 +199,7 @@ func makeRequest(cluster, path, authority string, f func([]byte)) error {
 		},
 	)
 	if err != nil {
-		proxywasm.LogCriticalf("request error:%s/n", cluster, path, authority)
+		proxywasm.LogErrorf("request error:%s/n", cluster, path, authority)
 	}
 	return err
 }

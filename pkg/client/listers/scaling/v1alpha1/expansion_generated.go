@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// ZeroScalerListerExpansion allows custom methods to be added to
-// ZeroScalerLister.
-type ZeroScalerListerExpansion interface{}
+// ZeroScaledObjectListerExpansion allows custom methods to be added to
+// ZeroScaledObjectLister.
+type ZeroScaledObjectListerExpansion interface{}
 
-// ZeroScalerNamespaceListerExpansion allows custom methods to be added to
-// ZeroScalerNamespaceLister.
-type ZeroScalerNamespaceListerExpansion interface{}
+// ZeroScaledObjectNamespaceListerExpansion allows custom methods to be added to
+// ZeroScaledObjectNamespaceLister.
+type ZeroScaledObjectNamespaceListerExpansion interface{}

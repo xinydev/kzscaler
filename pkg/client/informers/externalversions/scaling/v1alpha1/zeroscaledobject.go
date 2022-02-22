@@ -32,59 +32,59 @@ import (
 	cache "k8s.io/client-go/tools/cache"
 )
 
-// ZeroScalerInformer provides access to a shared informer and lister for
-// ZeroScalers.
-type ZeroScalerInformer interface {
+// ZeroScaledObjectInformer provides access to a shared informer and lister for
+// ZeroScaledObjects.
+type ZeroScaledObjectInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.ZeroScalerLister
+	Lister() v1alpha1.ZeroScaledObjectLister
 }
 
-type zeroScalerInformer struct {
+type zeroScaledObjectInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 	namespace        string
 }
 
-// NewZeroScalerInformer constructs a new informer for ZeroScaler type.
+// NewZeroScaledObjectInformer constructs a new informer for ZeroScaledObject type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewZeroScalerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredZeroScalerInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewZeroScaledObjectInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredZeroScaledObjectInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredZeroScalerInformer constructs a new informer for ZeroScaler type.
+// NewFilteredZeroScaledObjectInformer constructs a new informer for ZeroScaledObject type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredZeroScalerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredZeroScaledObjectInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ScalingV1alpha1().ZeroScalers(namespace).List(context.TODO(), options)
+				return client.ScalingV1alpha1().ZeroScaledObjects(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ScalingV1alpha1().ZeroScalers(namespace).Watch(context.TODO(), options)
+				return client.ScalingV1alpha1().ZeroScaledObjects(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&scalingv1alpha1.ZeroScaler{},
+		&scalingv1alpha1.ZeroScaledObject{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *zeroScalerInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredZeroScalerInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *zeroScaledObjectInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredZeroScaledObjectInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *zeroScalerInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&scalingv1alpha1.ZeroScaler{}, f.defaultInformer)
+func (f *zeroScaledObjectInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&scalingv1alpha1.ZeroScaledObject{}, f.defaultInformer)
 }
 
-func (f *zeroScalerInformer) Lister() v1alpha1.ZeroScalerLister {
-	return v1alpha1.NewZeroScalerLister(f.Informer().GetIndexer())
+func (f *zeroScaledObjectInformer) Lister() v1alpha1.ZeroScaledObjectLister {
+	return v1alpha1.NewZeroScaledObjectLister(f.Informer().GetIndexer())
 }

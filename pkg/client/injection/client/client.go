@@ -111,31 +111,31 @@ func (w *wrapScalingV1alpha1) RESTClient() rest.Interface {
 	panic("RESTClient called on dynamic client!")
 }
 
-func (w *wrapScalingV1alpha1) ZeroScalers(namespace string) typedscalingv1alpha1.ZeroScalerInterface {
-	return &wrapScalingV1alpha1ZeroScalerImpl{
+func (w *wrapScalingV1alpha1) ZeroScaledObjects(namespace string) typedscalingv1alpha1.ZeroScaledObjectInterface {
+	return &wrapScalingV1alpha1ZeroScaledObjectImpl{
 		dyn: w.dyn.Resource(schema.GroupVersionResource{
 			Group:    "scaling.xiny.dev",
 			Version:  "v1alpha1",
-			Resource: "zeroscalers",
+			Resource: "zeroscaledobjects",
 		}),
 
 		namespace: namespace,
 	}
 }
 
-type wrapScalingV1alpha1ZeroScalerImpl struct {
+type wrapScalingV1alpha1ZeroScaledObjectImpl struct {
 	dyn dynamic.NamespaceableResourceInterface
 
 	namespace string
 }
 
-var _ typedscalingv1alpha1.ZeroScalerInterface = (*wrapScalingV1alpha1ZeroScalerImpl)(nil)
+var _ typedscalingv1alpha1.ZeroScaledObjectInterface = (*wrapScalingV1alpha1ZeroScaledObjectImpl)(nil)
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) Create(ctx context.Context, in *v1alpha1.ZeroScaler, opts v1.CreateOptions) (*v1alpha1.ZeroScaler, error) {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) Create(ctx context.Context, in *v1alpha1.ZeroScaledObject, opts v1.CreateOptions) (*v1alpha1.ZeroScaledObject, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "scaling.xiny.dev",
 		Version: "v1alpha1",
-		Kind:    "ZeroScaler",
+		Kind:    "ZeroScaledObject",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -145,62 +145,62 @@ func (w *wrapScalingV1alpha1ZeroScalerImpl) Create(ctx context.Context, in *v1al
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ZeroScaler{}
+	out := &v1alpha1.ZeroScaledObject{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	return w.dyn.Namespace(w.namespace).Delete(ctx, name, opts)
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
 	return w.dyn.Namespace(w.namespace).DeleteCollection(ctx, opts, listOpts)
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.ZeroScaler, error) {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.ZeroScaledObject, error) {
 	uo, err := w.dyn.Namespace(w.namespace).Get(ctx, name, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ZeroScaler{}
+	out := &v1alpha1.ZeroScaledObject{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.ZeroScalerList, error) {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.ZeroScaledObjectList, error) {
 	uo, err := w.dyn.Namespace(w.namespace).List(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ZeroScalerList{}
+	out := &v1alpha1.ZeroScaledObjectList{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.ZeroScaler, err error) {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.ZeroScaledObject, err error) {
 	uo, err := w.dyn.Namespace(w.namespace).Patch(ctx, name, pt, data, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ZeroScaler{}
+	out := &v1alpha1.ZeroScaledObject{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) Update(ctx context.Context, in *v1alpha1.ZeroScaler, opts v1.UpdateOptions) (*v1alpha1.ZeroScaler, error) {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) Update(ctx context.Context, in *v1alpha1.ZeroScaledObject, opts v1.UpdateOptions) (*v1alpha1.ZeroScaledObject, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "scaling.xiny.dev",
 		Version: "v1alpha1",
-		Kind:    "ZeroScaler",
+		Kind:    "ZeroScaledObject",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -210,18 +210,18 @@ func (w *wrapScalingV1alpha1ZeroScalerImpl) Update(ctx context.Context, in *v1al
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ZeroScaler{}
+	out := &v1alpha1.ZeroScaledObject{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) UpdateStatus(ctx context.Context, in *v1alpha1.ZeroScaler, opts v1.UpdateOptions) (*v1alpha1.ZeroScaler, error) {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) UpdateStatus(ctx context.Context, in *v1alpha1.ZeroScaledObject, opts v1.UpdateOptions) (*v1alpha1.ZeroScaledObject, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "scaling.xiny.dev",
 		Version: "v1alpha1",
-		Kind:    "ZeroScaler",
+		Kind:    "ZeroScaledObject",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -231,13 +231,13 @@ func (w *wrapScalingV1alpha1ZeroScalerImpl) UpdateStatus(ctx context.Context, in
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ZeroScaler{}
+	out := &v1alpha1.ZeroScaledObject{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapScalingV1alpha1ZeroScalerImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+func (w *wrapScalingV1alpha1ZeroScaledObjectImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return nil, errors.New("NYI: Watch")
 }

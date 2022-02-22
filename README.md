@@ -19,9 +19,9 @@ The highlight of KZScaler is that there is no need to modify the existing servic
 
 Hijack all outbound traffic, and analyze whether the number of instances of target service is 0. If it is 0, scale to 1.
 
-### 1->0(WIP)
+### 1->0
 
-Hijack all inbound traffic and expose a metric, KZScaler controller
+KZScaler controller scale down service based on the prometheus metrics
 
 ## Suitable scenarios
 
@@ -59,6 +59,14 @@ istioctl install --set profile=demo -y
 
 ```
 
+#### Prometheus for istio
+
+```shell
+kubectl install -f https://raw.githubusercontent.com/istio/istio/release-1.13/samples/addons/prometheus.yaml
+```
+
+or follow the guide: https://istio.io/latest/docs/ops/integrations/prometheus/
+
 #### User services for testing
 
 ```shell
@@ -67,7 +75,7 @@ kubectl create ns testns
 
 kubectl label namespace testns istio-injection=enabled
 
-kubectl apply -f example/userservices. yaml -n testns
+kubectl apply -f https://raw.githubusercontent.com/kzscaler/kzscaler/v0.0.1-alpha/example/userservices.yaml -n testns
 
 ```
 
@@ -80,7 +88,7 @@ kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-a
 # envoy config
 kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-alpha/release-wasm.yaml -n testns
 
-kubectl apply -f example/zeroscaler. yaml -n testns
+kubectl apply -f https://raw.githubusercontent.com/kzscaler/kzscaler/v0.0.1-alpha/example/zeroscaler.yaml -n testns
 
 ```
 
@@ -132,7 +140,7 @@ demo-server   1/1      1           1           128m
 
 ```shell
 
-kubectl delete -f config/600-envoyconfig. yaml -n testns
+kubectl delete -f config/600-envoyconfig.yaml -n testns
 
 kubectl delete ns KZScaler testns
 
@@ -140,11 +148,11 @@ kubectl delete ns KZScaler testns
 
 ## Roadmap
 
-- [ ] supports automatic scaling of idle instances to 0
+- [x] supports automatic scaling of idle instances to 0
 
 - [ ] grpc supported
 
-- [ ] reduce outbound proxy and KZScaler controller requests
+- [ ] reduce requests between proxy and KZScaler controller
 
 ## Contributing
 

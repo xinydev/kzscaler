@@ -53,8 +53,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=scaling.xiny.dev, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("zeroscalers"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scaling().V1alpha1().ZeroScalers().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("zeroscaledobjects"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Scaling().V1alpha1().ZeroScaledObjects().Informer()}, nil
 
 	}
 

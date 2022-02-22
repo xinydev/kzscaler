@@ -23,11 +23,15 @@ import (
 )
 
 // Validate implements apis.Validatable interface.
-func (zs *ZeroScaler) Validate(ctx context.Context) *apis.FieldError {
+func (zs *ZeroScaledObject) Validate(ctx context.Context) *apis.FieldError {
 	return nil
 }
 
 // Validate validates PodAutoscaler Spec.
-func (pa *ZeroScalerSpec) Validate(ctx context.Context) *apis.FieldError {
+func (pa *ZeroScaledObjectSpec) Validate(ctx context.Context) *apis.FieldError {
+
+	if pa.Service.Namespace == "" {
+		return apis.ErrMissingField("service.namespace")
+	}
 	return nil
 }

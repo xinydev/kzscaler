@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
@@ -11,59 +12,64 @@ import (
 // +genreconciler
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type ZeroScaler struct {
+type ZeroScaledObject struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Spec holds the desired state of the ZeroScaler (from the client).
+	// Spec holds the desired state of the ZeroScaledObject (from the client).
 	// +optional
-	Spec ZeroScalerSpec `json:"spec,omitempty"`
+	Spec ZeroScaledObjectSpec `json:"spec,omitempty"`
 
-	// Status communicates the observed state of the ZeroScaler (from the controller).
+	// Status communicates the observed state of the ZeroScaledObject (from the controller).
 	// +optional
-	Status ZeroScalerStatus `json:"status,omitempty"`
+	Status ZeroScaledObjectStatus `json:"status,omitempty"`
 }
 
-// Verify that ZeroScaler adheres to the appropriate interfaces.
+// Verify that ZeroScaledObject adheres to the appropriate interfaces.
 var (
-	// Check that ZeroScaler can be validated and can be defaulted.
-	_ apis.Validatable = (*ZeroScaler)(nil)
-	_ apis.Defaultable = (*ZeroScaler)(nil)
+	// Check that ZeroScaledObject can be validated and can be defaulted.
+	_ apis.Validatable = (*ZeroScaledObject)(nil)
+	_ apis.Defaultable = (*ZeroScaledObject)(nil)
 
-	// Check that we can create OwnerReferences to a ZeroScaler.
-	_ kmeta.OwnerRefable = (*ZeroScaler)(nil)
+	// Check that we can create OwnerReferences to a ZeroScaledObject.
+	_ kmeta.OwnerRefable = (*ZeroScaledObject)(nil)
 
 	// Check that the type conforms to the duck Knative Resource shape.
-	_ duckv1.KRShaped = (*ZeroScaler)(nil)
+	_ duckv1.KRShaped = (*ZeroScaledObject)(nil)
 )
 
 const (
 	// PodAutoscalerConditionReady is set when the revision is starting to materialize
 	// runtime resources, and becomes true when those resources are ready.
-	ZeroScalerConditionReady = apis.ConditionReady
+	ZeroScaledObjectConditionReady = apis.ConditionReady
 )
 
-type ZeroScalerSpec struct {
-	Service  duckv1.KReference `json:"service"`
-	Workload duckv1.KReference `json:"workload"`
+type ZeroScaledObjectSpec struct {
+	Service  corev1.ObjectReference `json:"service"`
+	Workload corev1.ObjectReference `json:"workload"`
+	Rule     *ScaleRuleSpec         `json:"rule,omitempty"`
 }
 
-type ZeroScalerStatus struct {
+type ScaleRuleSpec struct {
+	StableWindow *int `json:"stable-window,omitempty"` // seconds,default 300s
+}
+
+type ZeroScaledObjectStatus struct {
 	duckv1.Status `json:",inline"`
 	Replicas      *int32 `json:"replicas,omitempty"`
 }
 
-// ZeroScalerList is a list of ZeroScaler resources
+// ZeroScaledObjectList is a list of ZeroScaledObject resources
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-type ZeroScalerList struct {
+type ZeroScaledObjectList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []ZeroScaler `json:"items"`
+	Items []ZeroScaledObject `json:"items"`
 }
 
 // GetStatus retrieves the status of the PodAutoscaler. Implements the KRShaped interface.
-func (zs *ZeroScaler) GetStatus() *duckv1.Status {
+func (zs *ZeroScaledObject) GetStatus() *duckv1.Status {
 	return &zs.Status.Status
 }
