@@ -1,18 +1,15 @@
 apiVersion: scaling.xiny.dev/v1alpha1
-kind: ZeroScaler
+kind: ZeroScaledObject
 metadata:
   name: zs
   namespace: testns
 spec:
   service:
-    kind: Service
-    apiVersion: v1
     name: demo-server
     namespace: testns
   workload:
-    kind: Deployment
-    apiVersion: apps/v1
     name: demo-server
     namespace: testns
+
 
 

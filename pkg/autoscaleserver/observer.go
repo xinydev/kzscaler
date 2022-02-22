@@ -1,4 +1,4 @@
-package scheduler
+package autoscaleserver
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 )
 
 type Observer interface {
-	GetMetrics(name string, ns string, intervalMinutes int) (float64, error)
+	GetMetrics(name string, ns string, intervalSecond int) (float64, error)
 }
 
 type PromObserver struct {
@@ -26,12 +26,12 @@ func NewPromObserver(address string) *PromObserver {
 		clientApi: v1.NewAPI(client),
 	}
 }
-func (p *PromObserver) GetMetrics(name string, ns string, intervalMinutes int) (float64, error) {
+func (p *PromObserver) GetMetrics(name string, ns string, intervalSecond int) (float64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	q := fmt.Sprintf("delta(istio_requests_total{"+
-		"destination_service_name=\"%s\",destination_service_namespace=\"%s\"}[%dm])", name, ns, intervalMinutes)
+		"destination_service_name=\"%s\",destination_service_namespace=\"%s\"}[%d])", name, ns, intervalSecond)
 	result, _, err := p.clientApi.Query(ctx, q, time.Now())
 
 	if err != nil {

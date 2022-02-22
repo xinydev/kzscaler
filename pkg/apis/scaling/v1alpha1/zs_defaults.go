@@ -22,11 +22,22 @@ import (
 	"knative.dev/pkg/apis"
 )
 
-// SetDefaults sets the default values for the ZeroScaler.
-func (pa *ZeroScaler) SetDefaults(ctx context.Context) {
+// SetDefaults sets the default values for the ZeroScaledObject.
+func (pa *ZeroScaledObject) SetDefaults(ctx context.Context) {
 	pa.Spec.SetDefaults(apis.WithinSpec(ctx))
 
 }
 
-// SetDefaults sets the default values for the ZeroScalerSpec.
-func (pa *ZeroScalerSpec) SetDefaults(ctx context.Context) {}
+// SetDefaults sets the default values for the ZeroScaledObjectSpec.
+func (pa *ZeroScaledObjectSpec) SetDefaults(ctx context.Context) {
+	pa.Service.Kind = "Service"
+	pa.Service.APIVersion = "v1"
+	pa.Rule.SetDefaults(apis.WithinSpec(ctx))
+}
+
+func (srs *ScaleRuleSpec) SetDefaults(ctx context.Context) {
+	defaultWindow := 300
+	if srs.StableWindow == nil {
+		srs.StableWindow = &defaultWindow
+	}
+}

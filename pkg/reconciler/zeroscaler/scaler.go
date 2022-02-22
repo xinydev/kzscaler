@@ -16,8 +16,8 @@ import (
 	"knative.dev/pkg/tracker"
 
 	"github.com/kzscaler/kzscaler/pkg/apis/scaling/v1alpha1"
-	zeroscalerreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaler"
-	kzscheduler "github.com/kzscaler/kzscaler/pkg/scheduler"
+	"github.com/kzscaler/kzscaler/pkg/autoscaleserver"
+	zeroscaledobjreconciler "github.com/kzscaler/kzscaler/pkg/client/injection/reconciler/scaling/v1alpha1/zeroscaledobject"
 )
 
 type Reconciler struct {
@@ -26,17 +26,17 @@ type Reconciler struct {
 	serviceLister    corev1listers.ServiceLister
 	endpointsLister  corev1listers.EndpointsLister
 
-	scheduler kzscheduler.Scheduler
-	tracker   tracker.Interface
+	scaleServer autoscaleserver.ScaleServer
+	tracker     tracker.Interface
 }
 
 // Check that our Reconciler implements parallelreconciler.Interface
-var _ zeroscalerreconciler.Interface = (*Reconciler)(nil)
+var _ zeroscaledobjreconciler.Interface = (*Reconciler)(nil)
 
-func (r *Reconciler) ReconcileKind(ctx context.Context, p *v1alpha1.ZeroScaler) pkgreconciler.Event {
+func (r *Reconciler) ReconcileKind(ctx context.Context, p *v1alpha1.ZeroScaledObject) pkgreconciler.Event {
 	logger := logging.FromContext(ctx)
 
-	logger.Infof("reconciling zeroscaler,ns:%s,name:%s", p.Namespace, p.Name)
+	logger.Infof("reconciling ZeroScaledObject,ns:%s,name:%s", p.Namespace, p.Name)
 
 	svc, err := r.reconcileService(ctx, p)
 	if err != nil {
@@ -49,15 +49,15 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, p *v1alpha1.ZeroScaler) 
 		return fmt.Errorf("reconcile workload err,%s", err)
 	}
 
-	r.scheduler.UpdateReplicas(svcName, *replicas)
+	r.scaleServer.UpdateScaleObj(p)
 
 	p.Status.Replicas = replicas
-	p.Status.MarkZeroScalerReady()
+	p.Status.MarkZeroScaledObjectReady()
 
 	return nil
 }
 
-func (r *Reconciler) reconcileWorkload(ctx context.Context, p *v1alpha1.ZeroScaler, svcName string) (*int32, error) {
+func (r *Reconciler) reconcileWorkload(ctx context.Context, p *v1alpha1.ZeroScaledObject, svcName string) (*int32, error) {
 	logger := logging.FromContext(ctx)
 	workload := p.Spec.Workload
 
@@ -76,7 +76,7 @@ func (r *Reconciler) reconcileWorkload(ctx context.Context, p *v1alpha1.ZeroScal
 		return nil, fmt.Errorf("no such deployments,%s", err)
 	} else {
 		// add a scale up function
-		r.scheduler.AddScaleHandler(svcName, func(i int32) error {
+		r.scaleServer.AddScaleHandler(p, func(i int32) error {
 
 			currrentDep, err := r.deploymentLister.Deployments(workload.Namespace).Get(workload.Name)
 			if err != nil {
@@ -106,7 +106,7 @@ func (r *Reconciler) reconcileWorkload(ctx context.Context, p *v1alpha1.ZeroScal
 	}
 }
 
-func (r *Reconciler) reconcileService(ctx context.Context, p *v1alpha1.ZeroScaler) (*v1.Service, error) {
+func (r *Reconciler) reconcileService(ctx context.Context, p *v1alpha1.ZeroScaledObject) (*v1.Service, error) {
 	serviceRef := p.Spec.Service
 	svc, err := r.serviceLister.Services(serviceRef.Namespace).Get(serviceRef.Name)
 	if err != nil {

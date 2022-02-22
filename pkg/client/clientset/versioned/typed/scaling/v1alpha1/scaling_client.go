@@ -26,7 +26,7 @@ import (
 
 type ScalingV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	ZeroScalersGetter
+	ZeroScaledObjectsGetter
 }
 
 // ScalingV1alpha1Client is used to interact with features provided by the scaling.xiny.dev group.
@@ -34,8 +34,8 @@ type ScalingV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ScalingV1alpha1Client) ZeroScalers(namespace string) ZeroScalerInterface {
-	return newZeroScalers(c, namespace)
+func (c *ScalingV1alpha1Client) ZeroScaledObjects(namespace string) ZeroScaledObjectInterface {
+	return newZeroScaledObjects(c, namespace)
 }
 
 // NewForConfig creates a new ScalingV1alpha1Client for the given config.

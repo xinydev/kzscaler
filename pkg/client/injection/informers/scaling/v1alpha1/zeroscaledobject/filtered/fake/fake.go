@@ -22,7 +22,7 @@ import (
 	context "context"
 
 	factoryfiltered "github.com/kzscaler/kzscaler/pkg/client/injection/informers/factory/filtered"
-	filtered "github.com/kzscaler/kzscaler/pkg/client/injection/informers/scaling/v1alpha1/zeroscaler/filtered"
+	filtered "github.com/kzscaler/kzscaler/pkg/client/injection/informers/scaling/v1alpha1/zeroscaledobject/filtered"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"
@@ -44,7 +44,7 @@ func withInformer(ctx context.Context) (context.Context, []controller.Informer) 
 	infs := []controller.Informer{}
 	for _, selector := range labelSelectors {
 		f := factoryfiltered.Get(ctx, selector)
-		inf := f.Scaling().V1alpha1().ZeroScalers()
+		inf := f.Scaling().V1alpha1().ZeroScaledObjects()
 		ctx = context.WithValue(ctx, filtered.Key{Selector: selector}, inf)
 		infs = append(infs, inf.Informer())
 	}

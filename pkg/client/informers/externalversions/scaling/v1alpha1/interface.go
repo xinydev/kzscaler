@@ -24,8 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// ZeroScalers returns a ZeroScalerInformer.
-	ZeroScalers() ZeroScalerInformer
+	// ZeroScaledObjects returns a ZeroScaledObjectInformer.
+	ZeroScaledObjects() ZeroScaledObjectInformer
 }
 
 type version struct {
@@ -39,7 +39,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// ZeroScalers returns a ZeroScalerInformer.
-func (v *version) ZeroScalers() ZeroScalerInformer {
-	return &zeroScalerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// ZeroScaledObjects returns a ZeroScaledObjectInformer.
+func (v *version) ZeroScaledObjects() ZeroScaledObjectInformer {
+	return &zeroScaledObjectInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
