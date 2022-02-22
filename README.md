@@ -75,7 +75,7 @@ kubectl create ns testns
 
 kubectl label namespace testns istio-injection=enabled
 
-kubectl apply -f example/userservices. yaml -n testns
+kubectl apply -f https://raw.githubusercontent.com/kzscaler/kzscaler/v0.0.1-alpha/example/userservices.yaml -n testns
 
 ```
 
@@ -88,7 +88,7 @@ kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-a
 # envoy config
 kubectl apply -f https://github.com/kzscaler/kzscaler/releases/download/v0.0.1-alpha/release-wasm.yaml -n testns
 
-kubectl apply -f example/zeroscaler. yaml -n testns
+kubectl apply -f https://raw.githubusercontent.com/kzscaler/kzscaler/v0.0.1-alpha/example/zeroscaler.yaml -n testns
 
 ```
 
@@ -140,7 +140,7 @@ demo-server   1/1      1           1           128m
 
 ```shell
 
-kubectl delete -f config/600-envoyconfig. yaml -n testns
+kubectl delete -f config/600-envoyconfig.yaml -n testns
 
 kubectl delete ns KZScaler testns
 

@@ -32,7 +32,6 @@ func (pa *ZeroScaledObject) SetDefaults(ctx context.Context) {
 func (pa *ZeroScaledObjectSpec) SetDefaults(ctx context.Context) {
 	pa.Service.Kind = "Service"
 	pa.Service.APIVersion = "v1"
-	pa.Rule.SetDefaults(apis.WithinSpec(ctx))
 }
 
 func (srs *ScaleRuleSpec) SetDefaults(ctx context.Context) {

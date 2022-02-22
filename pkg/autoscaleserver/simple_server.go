@@ -64,6 +64,7 @@ func (s *SimpleAutoScaleServer) Start(ctx context.Context) error {
 		err := wait.PollUntilWithContext(ctx, time.Minute, func(ctx context.Context) (done bool, err error) {
 			s.objLock.Lock() // TODO(xinydev): lock free
 			defer s.objLock.Unlock()
+			s.logger.Infof("get metrics!!")
 			for name, v := range s.objs {
 				if v.Replicas == 0 {
 					continue
@@ -73,7 +74,9 @@ func (s *SimpleAutoScaleServer) Start(ctx context.Context) error {
 				cnt, err := s.observer.GetMetrics(v.Name, v.Namespace, interval)
 				if err != nil {
 					s.logger.Errorf("get metrics for %s error:%s", name, err)
+					continue
 				}
+				s.logger.Infof("metrics for %s is %v", v.Name, cnt)
 				// no traffic for this service,scale to zero
 				if cnt < 0.0001 {
 					if v.ScaleHandler != nil {
@@ -100,7 +103,7 @@ func (s *SimpleAutoScaleServer) Start(ctx context.Context) error {
 	return s.router.Run(":8080")
 }
 func (s *SimpleAutoScaleServer) GetObjName(obj *v1alpha1.ZeroScaledObject) string {
-	return fmt.Sprintf("%s.%s", obj.Name, obj.Namespace)
+	return fmt.Sprintf("%s.%s", obj.Spec.Service.Name, obj.Spec.Service.Namespace)
 }
 
 func (s *SimpleAutoScaleServer) UpdateScaleObj(obj *v1alpha1.ZeroScaledObject) {
@@ -114,14 +117,30 @@ func (s *SimpleAutoScaleServer) UpdateScaleObj(obj *v1alpha1.ZeroScaledObject) {
 }
 func (s *SimpleAutoScaleServer) updateSimpleObj(obj *v1alpha1.ZeroScaledObject, simpleObj *SimpleScaleObj) *SimpleScaleObj {
 
-	if simpleObj == nil {
-		simpleObj = &SimpleScaleObj{}
+	replicas := int32(-1)
+	stable := 300
+
+	if obj.Status.Replicas != nil {
+		replicas = *obj.Status.Replicas
 	}
-	simpleObj.Replicas = *obj.Status.Replicas
 	if obj.Spec.Rule != nil && obj.Spec.Rule.StableWindow != nil {
-		simpleObj.StableWindow = *obj.Spec.Rule.StableWindow
+		stable = *obj.Spec.Rule.StableWindow
 	}
-	return simpleObj
+
+	if simpleObj != nil {
+		simpleObj.Replicas = replicas
+		simpleObj.StableWindow = stable
+		simpleObj.Name = obj.Spec.Service.Name
+		simpleObj.Namespace = obj.Spec.Service.Namespace
+		return simpleObj
+
+	}
+	return &SimpleScaleObj{
+		Name:         obj.Spec.Service.Name,
+		Namespace:    obj.Spec.Service.Namespace,
+		Replicas:     replicas,
+		StableWindow: stable,
+	}
 
 }
 
@@ -149,8 +168,9 @@ func (s *SimpleAutoScaleServer) getServicesHandler(c *gin.Context) {
 	for k, v := range s.objs {
 		services = append(services, fmt.Sprintf("%s%s%d", k, "%", v.Replicas))
 	}
-
-	c.String(http.StatusOK, strings.Join(services, "&"))
+	result := strings.Join(services, "&")
+	s.logger.Infof("response:%s\n", result)
+	c.String(http.StatusOK, result)
 }
 
 func (s *SimpleAutoScaleServer) scaleUpHandler(c *gin.Context) {
